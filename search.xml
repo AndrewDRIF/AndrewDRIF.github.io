@@ -129,31 +129,6 @@
     
     
     <entry>
-      <title>使用 ZooKeeper 建立集群应用</title>
-      <link href="/2023/04/08/%E4%BD%BF%E7%94%A8%20ZooKeeper%20%E5%BB%BA%E7%AB%8B%E9%9B%86%E7%BE%A4%E5%BA%94%E7%94%A8/"/>
-      <url>/2023/04/08/%E4%BD%BF%E7%94%A8%20ZooKeeper%20%E5%BB%BA%E7%AB%8B%E9%9B%86%E7%BE%A4%E5%BA%94%E7%94%A8/</url>
-      
-        <content type="html"><![CDATA[<h1 id="使用-ZooKeeper-建立集群应用"><a href="#使用-ZooKeeper-建立集群应用" class="headerlink" title="使用 ZooKeeper 建立集群应用"></a>使用 ZooKeeper 建立集群应用</h1><p><em><strong>*启动zookeeper:*</strong></em></p><p>\1. zkServer.sh start启动zookeeper服务</p><p>netstat -anop | grep 2181检查2181端口号是否空闲(可选指令)</p><p><img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps225.jpg" alt="img"> </p><p><img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps226.jpg" alt="img"> </p><p>空闲的话什么都不会显示</p><p>\2. zkServer.sh检查是否启动正常<img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps227.jpg" alt="img"></p><p>\3. 运行zookeeper</p><p>zkCli.sh -server zp:2181也可以,建议只用上一个</p><p><img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps228.jpg" alt="img"> </p><p>\4. 当起不来时,杀掉多余的ZooKeeperMain进程</p><p><img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps229.jpg" alt="img"> </p><p>①cd &#x2F;proc&#x2F;2176(想要删掉进程的端口号)</p><p>②cat status检查进程的状态</p><p><img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps230.jpg" alt="img"> </p><p>这个Z表示僵尸进程,PPid是想要删掉进程的父进程</p><p>③kill -9 2171直接杀掉父进程</p><p>④按照这个步骤杀掉所有的僵尸进程</p><p>⑤重启zookeeper服务,就可以起来了,还一直不会掉</p><p><em><strong>*基础客户端操作:*</strong></em></p><p><a href="https://blog.csdn.net/java_66666/article/details/81015302?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522164931276416780366534875%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&amp;request_id=164931276416780366534875&amp;biz_id=0&amp;utm_medium=distribute.pc_search_result.none-task-blog-2~all~top_positive~default-1-81015302.142%5Ev5%5Earticle_score_rank,157%5Ev4%5Econtrol&amp;utm_term=zookeeper&amp;spm=1018.2226.3001.4187">https://blog.csdn.net/java_66666/article/details/81015302?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522164931276416780366534875%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&amp;request_id=164931276416780366534875&amp;biz_id=0&amp;utm_medium=distribute.pc_search_result.none-task-blog-2~all~top_positive~default-1-81015302.142^v5^article_score_rank,157^v4^control&amp;utm_term=zookeeper&amp;spm=1018.2226.3001.4187</a></p><p>查看zookeeper中所有内容</p><p>Ls &#x2F;</p><p><img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps231.jpg" alt="img"> </p><p>Znode的类型:</p><p>持久znode</p><p>不会随着客户端的关机而删除,除非delete,不然一直在</p><p>持久znode下允许创建子节点</p><p>创建一个新的持久znode</p><p>create &#x2F;znode名称 数据</p><p>create &#x2F;moonlight shine(create要小写)</p><p><img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps232.jpg" alt="img"> </p><p>在子节点下创建子节点</p><p>必须要一层一层创建并且每一层都要有数据</p><p><img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps233.jpg" alt="img"> </p><p>临时znode</p><p>客户端关机之后就会消失,也可以用delete删除</p><p>临时znode下不允许创建子节点</p><p>创建临时znode</p><p>Create -e &#x2F;znode名称 数据</p><p><img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps234.jpg" alt="img"> </p><p>创建子节点会报错</p><p><img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps235.jpg" alt="img"> </p><p>顺序znode</p><p>ZooKeeper 在创建序列时为其分配了序列号，作为其名称的一部分.持久znode跟临时znode都可以是顺序znode</p><p>创建顺序znode(持久)</p><p>Create -s &#x2F;znode</p><p>创建顺序znode(临时)</p><p>Create -s -e &#x2F;znode</p><p>查看znode下面的数据</p><p>Get &#x2F;znode名称</p><p>Get &#x2F;moonlight</p><p><img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps236.jpg" alt="img"> </p><p>修改znode下的数据</p><p>Set &#x2F;znode名称 要修改成的数据</p><p>Set &#x2F;moonlight sum</p><p><img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps237.jpg" alt="img"> </p><p>删除znode</p><p>Delete &#x2F;znode名称</p><p><img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps238.jpg" alt="img"> </p><p>如果znode下面有子节点,会报错</p><p><img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps239.jpg" alt="img"> </p><p>全部(递归)删除znode下面的子节点:</p><p>Deleteall &#x2F;znode名称</p><p>Zookeeper watch</p><p>Zookeeper API:</p>]]></content>
-      
-      
-      <categories>
-          
-          <category> 数据科学与大数据 </category>
-          
-      </categories>
-      
-      
-        <tags>
-            
-            <tag> ZooKeeper </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
       <title>使用 MySQL 查询数据</title>
       <link href="/2023/04/08/%E4%BD%BF%E7%94%A8%20MySQL%20%E6%9F%A5%E8%AF%A2%E6%95%B0%E6%8D%AE/"/>
       <url>/2023/04/08/%E4%BD%BF%E7%94%A8%20MySQL%20%E6%9F%A5%E8%AF%A2%E6%95%B0%E6%8D%AE/</url>
@@ -171,6 +146,31 @@
         <tags>
             
             <tag> MySQL </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>使用 ZooKeeper 建立集群应用</title>
+      <link href="/2023/04/08/%E4%BD%BF%E7%94%A8%20ZooKeeper%20%E5%BB%BA%E7%AB%8B%E9%9B%86%E7%BE%A4%E5%BA%94%E7%94%A8/"/>
+      <url>/2023/04/08/%E4%BD%BF%E7%94%A8%20ZooKeeper%20%E5%BB%BA%E7%AB%8B%E9%9B%86%E7%BE%A4%E5%BA%94%E7%94%A8/</url>
+      
+        <content type="html"><![CDATA[<h1 id="使用-ZooKeeper-建立集群应用"><a href="#使用-ZooKeeper-建立集群应用" class="headerlink" title="使用 ZooKeeper 建立集群应用"></a>使用 ZooKeeper 建立集群应用</h1><p><em><strong>*启动zookeeper:*</strong></em></p><p>\1. zkServer.sh start启动zookeeper服务</p><p>netstat -anop | grep 2181检查2181端口号是否空闲(可选指令)</p><p><img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps225.jpg" alt="img"> </p><p><img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps226.jpg" alt="img"> </p><p>空闲的话什么都不会显示</p><p>\2. zkServer.sh检查是否启动正常<img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps227.jpg" alt="img"></p><p>\3. 运行zookeeper</p><p>zkCli.sh -server zp:2181也可以,建议只用上一个</p><p><img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps228.jpg" alt="img"> </p><p>\4. 当起不来时,杀掉多余的ZooKeeperMain进程</p><p><img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps229.jpg" alt="img"> </p><p>①cd &#x2F;proc&#x2F;2176(想要删掉进程的端口号)</p><p>②cat status检查进程的状态</p><p><img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps230.jpg" alt="img"> </p><p>这个Z表示僵尸进程,PPid是想要删掉进程的父进程</p><p>③kill -9 2171直接杀掉父进程</p><p>④按照这个步骤杀掉所有的僵尸进程</p><p>⑤重启zookeeper服务,就可以起来了,还一直不会掉</p><p><em><strong>*基础客户端操作:*</strong></em></p><p><a href="https://blog.csdn.net/java_66666/article/details/81015302?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522164931276416780366534875%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&amp;request_id=164931276416780366534875&amp;biz_id=0&amp;utm_medium=distribute.pc_search_result.none-task-blog-2~all~top_positive~default-1-81015302.142%5Ev5%5Earticle_score_rank,157%5Ev4%5Econtrol&amp;utm_term=zookeeper&amp;spm=1018.2226.3001.4187">https://blog.csdn.net/java_66666/article/details/81015302?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522164931276416780366534875%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&amp;request_id=164931276416780366534875&amp;biz_id=0&amp;utm_medium=distribute.pc_search_result.none-task-blog-2~all~top_positive~default-1-81015302.142^v5^article_score_rank,157^v4^control&amp;utm_term=zookeeper&amp;spm=1018.2226.3001.4187</a></p><p>查看zookeeper中所有内容</p><p>Ls &#x2F;</p><p><img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps231.jpg" alt="img"> </p><p>Znode的类型:</p><p>持久znode</p><p>不会随着客户端的关机而删除,除非delete,不然一直在</p><p>持久znode下允许创建子节点</p><p>创建一个新的持久znode</p><p>create &#x2F;znode名称 数据</p><p>create &#x2F;moonlight shine(create要小写)</p><p><img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps232.jpg" alt="img"> </p><p>在子节点下创建子节点</p><p>必须要一层一层创建并且每一层都要有数据</p><p><img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps233.jpg" alt="img"> </p><p>临时znode</p><p>客户端关机之后就会消失,也可以用delete删除</p><p>临时znode下不允许创建子节点</p><p>创建临时znode</p><p>Create -e &#x2F;znode名称 数据</p><p><img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps234.jpg" alt="img"> </p><p>创建子节点会报错</p><p><img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps235.jpg" alt="img"> </p><p>顺序znode</p><p>ZooKeeper 在创建序列时为其分配了序列号，作为其名称的一部分.持久znode跟临时znode都可以是顺序znode</p><p>创建顺序znode(持久)</p><p>Create -s &#x2F;znode</p><p>创建顺序znode(临时)</p><p>Create -s -e &#x2F;znode</p><p>查看znode下面的数据</p><p>Get &#x2F;znode名称</p><p>Get &#x2F;moonlight</p><p><img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps236.jpg" alt="img"> </p><p>修改znode下的数据</p><p>Set &#x2F;znode名称 要修改成的数据</p><p>Set &#x2F;moonlight sum</p><p><img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps237.jpg" alt="img"> </p><p>删除znode</p><p>Delete &#x2F;znode名称</p><p><img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps238.jpg" alt="img"> </p><p>如果znode下面有子节点,会报错</p><p><img src="https://yuehua-hnu-1313248262.cos.ap-nanjing.myqcloud.com/typora/wps239.jpg" alt="img"> </p><p>全部(递归)删除znode下面的子节点:</p><p>Deleteall &#x2F;znode名称</p><p>Zookeeper watch</p><p>Zookeeper API:</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 数据科学与大数据 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> ZooKeeper </tag>
             
         </tags>
       
